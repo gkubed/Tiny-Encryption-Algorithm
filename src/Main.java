@@ -26,7 +26,7 @@ public class Main {
 		// IV only valid for CBC and CTR modes
 		if (!mode.equals(TinyE.Mode.ECB)) {
 			iv = readInFile(ivFile, true);
-			validateLength(iv, 4, "IV");
+			validateLength(iv, 2, "IV");
 		}
 		// have all we need, now perform encyption / decryption
 		TinyE cipher = new TinyE();
