@@ -1,15 +1,28 @@
 package edu.cedarville.cs.crypto;
 
+import java.math.BigInteger;
+
 public class Tools {
     
     public static Integer[] convertFromBytesToInts(byte[] bs) {
-        Integer[] ints = new Integer[bs.length / 4];
+        System.out.println(bs.length);
         
+        int length = (int) Math.ceil(bs.length / 4.0);
+        System.out.println(length);
+        
+        Integer[] ints = new Integer[length];
+        int index;
         for (int i = 0; i < ints.length; i++) {
             ints[i] = 0;
             for (int j = 0; j < 4; j++) {
-                ints[i] = ints[i] << 8;
-                ints[i] += bs[4 * i + j] & 0xFF;
+                index = 4 * i  + j;
+                if (index < bs.length) {
+                    ints[i] = (bs[4 * i + j] & 0xFF) + (ints[i] << 8);
+                }
+                
+                else {
+                    ints[i] = ints[i] << 8;
+                }
             }
         }
         
@@ -22,7 +35,7 @@ public class Tools {
         
         for (int i = 0; i < len; i++) {
             String part = s.substring(8 * i, 8 * i + 8);
-            ints[i] = Integer.parseUnsignedInt(part, 16);            
+            ints[i] = (new BigInteger(part, 16)).intValue();
         }
         
         return ints;
@@ -32,9 +45,8 @@ public class Tools {
         byte[] bytes = new byte[ints.length * 4];
         
         for (int i = 0; i < ints.length; i++) {
-            for (int j = 3; j >= 0; j--) {
-                bytes[4 * i + j] = (byte) (ints[i] & 0xFF);
-                ints[i] = ints[i] >> 8;
+            for (int j = 0; j < 4; j++) {
+                bytes[4 * i + j] = (byte) ((ints[i] >> (24 - 8 * j)) & 0xFF);
             }
         }
         
