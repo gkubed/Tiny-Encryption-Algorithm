@@ -5,11 +5,7 @@ import java.math.BigInteger;
 public class Tools {
     
     public static Integer[] convertFromBytesToInts(byte[] bs) {
-        System.out.println(bs.length);
-        
         int length = (int) Math.ceil(bs.length / 4.0);
-        System.out.println(length);
-        
         Integer[] ints = new Integer[length];
         int index;
         for (int i = 0; i < ints.length; i++) {
