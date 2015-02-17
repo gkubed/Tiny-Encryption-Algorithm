@@ -101,8 +101,8 @@ public class TinyE {
             // Ci = Pi XOR E(iv + i, K)
             // E(iv + i, K)
             int sum = 0;
-            cipher[p] = iv[p];
-            cipher[p + 1] = iv[p+1];
+            cipher[p] = iv[p%iv.length];
+            cipher[p + 1] = iv[(p+1)%iv.length];
             for (int i = 0; i < 32; i++) {
                 sum += delta;
                 
