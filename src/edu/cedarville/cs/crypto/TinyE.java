@@ -43,19 +43,15 @@ public class TinyE {
     /** CBC **/
     private Integer[] encryptCBC(Integer[] plaintext, Integer[] key, int delta, Integer[] iv) {
         // XOR IV and plaintext[0], [1]
-        byte[] plaintextBytes = Tools.convertFromIntsToBytes(plaintext);
-        byte[] ivBytes        = Tools.convertFromIntsToBytes(iv);
-        plaintextBytes[0] = (byte) (plaintextBytes[0] ^ ivBytes[0]);
-        plaintextBytes[1] = (byte) (plaintextBytes[1] ^ ivBytes[1]);
-        plaintext = Tools.convertFromBytesToInts(plaintextBytes);
+        plaintext[0] = plaintext[0] ^ iv[0];
+        plaintext[1] = plaintext[1] ^ iv[1];
         
         Integer[] cipher = new Integer[plaintext.length];
         
         for (int p = 0; p < plaintext.length; p += 2) {
             if (p != 0) {
-                plaintextBytes[p] = (byte) (plaintextBytes[p] ^ cipher[p-2]);
-                plaintextBytes[p+1] = (byte) (plaintextBytes[p+1] ^ cipher[p-1]);
-                plaintext = Tools.convertFromBytesToInts(plaintextBytes);
+                plaintext[p] = plaintext[p] ^ cipher[p];
+                plaintext[p+1] = plaintext[p+1] ^ cipher[p+1];
             }
             int sum = 0;
             cipher[p] = plaintext[p];
@@ -74,8 +70,6 @@ public class TinyE {
         Integer[] plain = new Integer[ciphertext.length];
         
         for (int p = 0; p < ciphertext.length; p += 2) {
-            Integer cipher0 = ciphertext[p];
-            Integer cipher1 = ciphertext[p+1];
             int sum = delta << 5;
             
             plain[p] = ciphertext[p];
@@ -88,19 +82,12 @@ public class TinyE {
             }
             
             if (p == 0) {
-                // XOR IV with plainBytes[0], [1]
-                byte[] plainBytes = Tools.convertFromIntsToBytes(plain);
-                byte[] ivBytes    = Tools.convertFromIntsToBytes(iv);
-                plainBytes[0] = (byte) (plainBytes[0] ^ ivBytes[0]);
-                plainBytes[1] = (byte) (plainBytes[1] ^ ivBytes[1]);
-                plain = Tools.convertFromBytesToInts(plainBytes);
+                plain[0] = plain[0] ^ iv[0];
+                plain[1] = plain[1] ^ iv[1];
             } else {
                 // XOR IV with ciphertext[0], [1]
-                byte[] plainBytes = Tools.convertFromIntsToBytes(plain);
-                byte[] ivBytes    = Tools.convertFromIntsToBytes(iv);
-                plainBytes[0] = (byte) (plainBytes[0] ^ cipher0);
-                plainBytes[1] = (byte) (plainBytes[1] ^ cipher1);
-                plain = Tools.convertFromBytesToInts(plainBytes);
+                plain[p] = plain[p] ^ ciphertext[p-2];
+                plain[p+1] = plain[p+1] ^ ciphertext[p-1];
             }
         }        
         return plain;
