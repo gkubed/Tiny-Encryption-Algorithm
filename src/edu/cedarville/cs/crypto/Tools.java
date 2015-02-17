@@ -6,12 +6,13 @@ public class Tools {
     
     public static Integer[] convertFromBytesToInts(byte[] bs) {
         int length = (int) Math.ceil(bs.length / 4.0);
+        length += length % 2;
         Integer[] ints = new Integer[length];
         int index;
         for (int i = 0; i < ints.length; i++) {
             ints[i] = 0;
             for (int j = 0; j < 4; j++) {
-                index = 4 * i  + j;
+                index = 4 * i + j;
                 if (index < bs.length) {
                     ints[i] = (bs[4 * i + j] & 0xFF) + (ints[i] << 8);
                 }
