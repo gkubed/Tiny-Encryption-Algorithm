@@ -111,35 +111,36 @@ public class TinyE {
         Integer[] cipher = new Integer[plaintext.length];
         
         for (int p = 0; p < plaintext.length; p += 2) {
+            // Ci = Pi XOR E(iv + i, K)
+            // E(iv + i, K)
             int sum = 0;
-            cipher[p] = plaintext[p];
-            cipher[p + 1] = plaintext[p + 1];
+            cipher[p] = iv[p];
+            cipher[p + 1] = iv[p+1];
             for (int i = 0; i < 32; i++) {
                 sum += delta;
                 
                 cipher[p] = cipher[p] + (((cipher[p + 1] << 4) + key[0]) ^ (cipher[p + 1] + sum) ^ ((cipher[p + 1] >> 5) + key[1]));
                 cipher[p + 1] = cipher[p + 1] + (((cipher[p] << 4) + key[2]) ^ (cipher[p] + sum) ^ ((cipher[p] >> 5) + key[3]));
             }
+            
+            // Increment counter
+            long longIV = (((long) iv[0] << 32) & 0xffffffff00000000l) | ((long)(iv[1] & 0x00000000ffffffffl));
+            longIV++;
+            
+            // Truncate long back into two ints
+            iv[0] = (int)(longIV >> 32);
+            iv[1] = (int)(longIV);
+                
+            // XOR Plaintext with Ciphertext (Pi XOR E(iv + i, K))
+            byte[] plainBytes  = Tools.convertFromIntsToBytes(plaintext);
+            byte[] cipherBytes = Tools.convertFromIntsToBytes(cipher);
+            cipherBytes[p]   = (byte) (plainBytes[p] ^ cipherBytes[p]);
+            cipherBytes[p+1] = (byte) (plainBytes[p+1] ^ cipherBytes[p+1]);
+            cipher = Tools.convertFromBytesToInts(cipherBytes);
+            System.out.println(cipher[p]);
+            System.out.println(cipher[p+1]);
         }
         return cipher;
-    }
-    
-    private Integer[] decryptCTR(Integer[] ciphertext, Integer[] key, int delta, Integer[] iv) {
-        Integer[] plain = new Integer[ciphertext.length];
-        
-        for (int p = 0; p < ciphertext.length; p += 2) {
-            int sum = delta << 5;
-            
-            plain[p] = ciphertext[p];
-            plain[p + 1] = ciphertext[p + 1];
-            
-            for (int i = 0; i < 32; i++) {
-                plain[p + 1] = plain[p + 1] - (((plain[p] << 4) + key[2]) ^ (plain[p] + sum) ^ ((plain[p] >> 5) + key[3]));
-                plain[p] = plain[p] - (((plain[p + 1] << 4) + key[0]) ^ (plain[p + 1] + sum) ^ ((plain[p + 1] >> 5) + key[1]));
-                sum -= delta;
-            }
-        }
-        return plain;
     }
     
     public Integer[] encrypt(Integer[] plaintext, Integer[] key, Mode mode, Integer[] iv) {
@@ -161,7 +162,7 @@ public class TinyE {
         } else if (mode == Mode.CBC) {
             return decryptCBC(ciphertext, key, delta, iv);
         } else if (mode == Mode.CTR) {
-            return decryptCTR(ciphertext, key, delta, iv);
+            return encryptCTR(ciphertext, key, delta, iv);
         }
         return null;
     }
