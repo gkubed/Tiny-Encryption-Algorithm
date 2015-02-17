@@ -27,9 +27,8 @@ public class Tools {
     }
     
     public static Integer[] convertFromHexStringToInts(String s) {
-        int len = s.length() / 8;
+        int len = (int) Math.ceil(s.length() / 8.0);
         Integer[] ints = new Integer[len];
-        
         for (int i = 0; i < len; i++) {
             String part = s.substring(8 * i, 8 * i + 8);
             ints[i] = (new BigInteger(part, 16)).intValue();
@@ -52,9 +51,14 @@ public class Tools {
     
     public static String convertFromIntsToHexString(Integer[] ints) {
         String hex = "";
-        
         for (int i = 0; i < ints.length; i++) {
-            hex += Integer.toHexString(ints[i]).toUpperCase();
+            String s = Integer.toHexString(ints[i]).toUpperCase();
+            while (s.length() < 8) {
+                s = "0" + s;
+            }
+            
+            hex += s;
+            
         }
         
         return hex;
