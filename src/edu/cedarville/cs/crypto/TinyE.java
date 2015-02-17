@@ -131,14 +131,8 @@ public class TinyE {
             iv[0] = (int)(longIV >> 32);
             iv[1] = (int)(longIV);
                 
-            // XOR Plaintext with Ciphertext (Pi XOR E(iv + i, K))
-            byte[] plainBytes  = Tools.convertFromIntsToBytes(plaintext);
-            byte[] cipherBytes = Tools.convertFromIntsToBytes(cipher);
-            cipherBytes[p]   = (byte) (plainBytes[p] ^ cipherBytes[p]);
-            cipherBytes[p+1] = (byte) (plainBytes[p+1] ^ cipherBytes[p+1]);
-            cipher = Tools.convertFromBytesToInts(cipherBytes);
-            System.out.println(cipher[p]);
-            System.out.println(cipher[p+1]);
+            cipher[p] = plaintext[p] ^ cipher[p];
+            cipher[p+1] = plaintext[p+1] ^ cipher[p+1];
         }
         return cipher;
     }
